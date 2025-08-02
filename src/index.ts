@@ -153,7 +153,7 @@ const app = new Elysia()
             })
     )
 
-    .listen(3000);
+    .listen(8000);
 
 console.log(
     `Elysia at http://${app.server?.hostname}:${app.server?.port}`
