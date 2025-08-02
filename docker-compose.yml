@@ -14,7 +14,7 @@ services:
     build: .
     # image: alice-app # (optional: name your built image something unique if you want)
     entrypoint: []
-    command: /bin/sh -c "bun install && bunx prisma generate && bun run --watch src/index.ts"
+    command: /bin/sh -c "bun install && bunx prisma generate && bunx prisma db push && bun run --watch src/index.ts"
     ports:
       - "8000:8000"
     volumes:
