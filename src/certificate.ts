@@ -36,17 +36,13 @@ export const certificate = new Elysia({ prefix: '/cert' })
             secret: "CHANGE_THIS_IN_PROD"
         })
     )
-    .get("/", async ({ jwt, set, headers, status }) => {
+    .get("/:id", async ({ jwt, set, status, params: { id }}) => {
         set.headers["Content-Type"] = "image/png";
-        const auth = headers.authorization
-        if (!auth) {
-            return status(401, "Unauthorized")
-        }
-        const decoded = await jwt.verify(auth) as unknown as JwtPayload
+        
 
         const decodeduser = await prisma.user.findUnique({
             where: {
-                username: decoded?.username!
+                username: id
             }
         });
 
