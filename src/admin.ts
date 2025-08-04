@@ -241,6 +241,24 @@ export const admin = new Elysia({ prefix: '/admin' })
                 })
             })
     )
+    .group('/database', (app) =>
+        app
+            .get('/user/:pagination', async ({ params: { pagination }}) => {
+                const result = await prisma.user.findMany({
+                    skip: 10 * (pagination - 1),
+                    take: 10,
+                    omit: {
+                        password: true,
+                        id: true
+                    }
+                })
+                return result
+            }, {
+                params: t.Object({
+                    pagination: t.Number()
+                })
+            })
+    )
     .post('/approve/:user/:base', async ({ params: { user, base } }) => {
         const userExists = await prisma.user.findUnique({
             where: {
