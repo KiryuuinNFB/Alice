@@ -27,7 +27,7 @@ const app = new Elysia()
     .use(admin)
     .use(certificate)
     //DO NOT USE DEV IN PRODUCTION
-    .use(dev)
+    //.use(dev)
     .onError(({ error }) => {
         return new Response(error.toString())
     })
