@@ -13,7 +13,7 @@ export const admin = new Elysia({ prefix: '/admin' })
     .use(
         jwt({
             name: 'jwt',
-            secret: "CHANGE_THIS_IN_PROD"
+            secret: "I_CHANGED_IT_IN_PROD"
         })
     )
     .guard({
