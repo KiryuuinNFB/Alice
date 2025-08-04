@@ -12,4 +12,14 @@ To start the development server run:
 bun run dev
 ```
 
-Open http://localhost:3000/ with your browser to see the result.
+## Deployment
+Build and run
+```bash
+docker-compose up --build
+```
+Run
+```bash
+docker-compose up
+```
+
+Open http://localhost:8000/ with your browser to see the result.

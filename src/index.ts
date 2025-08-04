@@ -5,6 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import { cors } from '@elysiajs/cors'
 import { admin } from "./admin"
 import { dev } from "./dev"
+import { certificate } from "./certificate";
 
 interface JwtPayload {
     username: string
@@ -24,6 +25,7 @@ const app = new Elysia()
     )
     //admin commands for adding, removing and reading users
     .use(admin)
+    .use(certificate)
     //DO NOT USE DEV IN PRODUCTION
     .use(dev)
     .onError(({ error }) => {
@@ -153,7 +155,7 @@ const app = new Elysia()
             })
     )
 
-    .listen(3000);
+    .listen(8000);
 
 console.log(
     `Elysia at http://${app.server?.hostname}:${app.server?.port}`

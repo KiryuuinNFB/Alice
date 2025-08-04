@@ -13,8 +13,10 @@ RUN bunx prisma generate --schema=./prisma/schema.prisma
 
 COPY . .
 
-ENV PORT=3000
+COPY Sarabun-Regular.ttf /usr/share/fonts/truetype/Sarabun-Regular.ttf
 
-EXPOSE 3000
+ENV PORT=8000
+
+EXPOSE 8000
 
 CMD ["bun", "src/index.ts"]
