@@ -21,7 +21,7 @@ services:
             - db
         environment:
             DATABASE_URL: postgres://alice:alicepassword@db:5432/alicedb
-Then run:
+
     app:
         build: .
         # image: alice-app # (optional: name your built image something unique if you want)
