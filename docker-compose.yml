@@ -19,8 +19,8 @@ services:
             - ./:/home/bun/app:z
         depends_on:
             - db
-    environment:
-        DATABASE_URL: postgres://alice:alicepassword@db:5432/alicedb
+        environment:
+            DATABASE_URL: postgres://alice:alicepassword@db:5432/alicedb
 Then run:
     app:
         build: .
