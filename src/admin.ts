@@ -237,7 +237,7 @@ export const admin = new Elysia({ prefix: '/admin' })
                     }
                 })
 
-                return { 
+                return {
                     "studentId": getuser?.username,
                     "ulid": getuser?.id,
                     "name": getuser?.name,
@@ -255,20 +255,35 @@ export const admin = new Elysia({ prefix: '/admin' })
     )
     .group('/database', (app) =>
         app
-            .get('/user/:pagination', async ({ params: { pagination }}) => {
-                const result = await prisma.user.findMany({
-                    skip: 10 * (pagination - 1),
-                    take: 10,
+            .get('/user/', async ({ query }) => {
+                const page = parseInt(query.page || "1")
+                const take = 10
+                const skip = (page - 1) * take;
+
+                const where: any = {}
+                if (query.grade) where.grade = parseInt(query.grade);
+                if (query.room) where.room = parseInt(query.room);
+
+                const getUsers = await prisma.user.findMany({
+                    where,
+                    skip,
+                    take,
+                    orderBy: { id: 'desc' },
                     omit: {
-                        password: true,
-                        id: true
+                        id: true,
+                        password: true
                     }
-                })
-                return result
-            }, {
-                params: t.Object({
-                    pagination: t.Number()
-                })
+                });
+
+                const total = await prisma.user.count({ where });
+
+                return {
+                    data: getUsers,
+                    total,
+                    page,
+                    pageCount: Math.ceil(total / take)
+                }
+
             })
     )
     .post('/approve/:user/:base', async ({ params: { user, base } }) => {
