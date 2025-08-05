@@ -19,6 +19,8 @@ model User {
     surname   String
     role      Role         @default(USER)
     prefix    Prefix       @default(Other)
+    grade     Int
+    room      Int
     completed Completion[]
 }
 
@@ -27,6 +29,7 @@ model Base {
     name       String
     desc       String
     location   String
+    teacher    String
     Completion Completion[]
 }
 

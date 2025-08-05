@@ -37,12 +37,13 @@ export const admin = new Elysia({ prefix: '/admin' })
     .group('', (app) =>
         app
             .put('/base', async ({ body }) => {
-                const { name, desc, location } = body;
+                const { name, desc, location, teacher } = body;
                 const base = await prisma.base.create({
                     data: {
                         name,
                         desc,
-                        location
+                        location,
+                        teacher,
                     }
                 });
 
@@ -54,11 +55,12 @@ export const admin = new Elysia({ prefix: '/admin' })
                 body: t.Object({
                     name: t.String(),
                     desc: t.String(),
-                    location: t.String()
+                    location: t.String(),
+                    teacher: t.String()
                 })
             })
             .patch('/base', async ({ body }) => {
-                const { id, name, desc, location } = body;
+                const { id, name, desc, location, teacher } = body;
                 const base = await prisma.base.update({
                     where: {
                         id: id
@@ -66,7 +68,8 @@ export const admin = new Elysia({ prefix: '/admin' })
                     data: {
                         name,
                         desc,
-                        location
+                        location,
+                        teacher,
                     }
                 });
 
@@ -79,7 +82,8 @@ export const admin = new Elysia({ prefix: '/admin' })
                     id: t.Number(),
                     name: t.String(),
                     desc: t.String(),
-                    location: t.String()
+                    location: t.String(),
+                    teacher: t.String()
                 })
             })
             .delete('/base', async ({ body }) => {
@@ -109,7 +113,7 @@ export const admin = new Elysia({ prefix: '/admin' })
     .group('', (app) =>
         app
             .put('/user', async ({ body }) => {
-                const { username, password, name, surname, role, prefix } = body;
+                const { username, password, name, surname, role, prefix, grade, room } = body;
                 const hashed = await Bun.password.hash(password)
 
                 const user = await prisma.user.create({
@@ -120,6 +124,8 @@ export const admin = new Elysia({ prefix: '/admin' })
                         surname,
                         role: role ?? 'USER',
                         prefix: prefix ?? 'Other',
+                        grade,
+                        room
                     },
                 });
 
@@ -147,10 +153,12 @@ export const admin = new Elysia({ prefix: '/admin' })
                         Nang: 'Nang'
 
                     })),
+                    grade: t.Number(),
+                    room: t.Number()
                 }),
             })
             .patch('/user', async ({ body }) => {
-                const { username, password, name, surname, role, prefix } = body;
+                const { username, password, name, surname, role, prefix, grade, room } = body;
                 const hashed = await Bun.password.hash(password, { algorithm: "argon2id", memoryCost: 4, timeCost: 3 })
 
                 const user = await prisma.user.update({
@@ -162,7 +170,9 @@ export const admin = new Elysia({ prefix: '/admin' })
                         name,
                         surname,
                         role: role ?? 'USER',
-                        prefix: prefix ?? 'Other'
+                        prefix: prefix ?? 'Other',
+                        grade,
+                        room,
                     },
                 });
 
@@ -190,6 +200,8 @@ export const admin = new Elysia({ prefix: '/admin' })
                         Nang: 'Nang'
 
                     })),
+                    grade: t.Number(),
+                    room: t.Number(),
                 }),
             })
             .delete('/user', async ({ body }) => {
