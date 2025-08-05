@@ -225,7 +225,7 @@ export const admin = new Elysia({ prefix: '/admin' })
                     }
                 })
 
-                return {
+                return { 
                     "studentId": getuser?.username,
                     "ulid": getuser?.id,
                     "name": getuser?.name,
