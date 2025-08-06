@@ -285,6 +285,31 @@ export const admin = new Elysia({ prefix: '/admin' })
                 }
 
             })
+            .get('/base/', async ({ query }) => {
+                const page = parseInt(query.page || "1")
+                const take = 10
+                const skip = (page - 1) * take;
+
+                const where: any = {}
+
+                const getBases = await prisma.base.findMany({
+                    where,
+                    skip,
+                    take,
+                    orderBy: { id: 'desc' },
+                });
+
+                const total = await prisma.base.count({ where });
+
+                return {
+                    data: getBases,
+                    total,
+                    page,
+                    pageCount: Math.ceil(total / take)
+                }
+
+            })
+
     )
     .post('/approve/:user/:base', async ({ params: { user, base } }) => {
         const userExists = await prisma.user.findUnique({
