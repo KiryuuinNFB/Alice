@@ -1,14 +1,8 @@
-import { Elysia, status, t, file } from "elysia";
+import { Elysia } from "elysia";
 const { SVG, registerWindow } = require('@svgdotjs/svg.js')
 const { createSVGWindow } = require('svgdom')
 const sharp = require('sharp')
-import { jwt } from '@elysiajs/jwt'
 import { PrismaClient } from "@prisma/client";
-import fs from 'fs'
-
-interface JwtPayload {
-    username: string
-}
 
 const prisma = new PrismaClient()
 
@@ -30,13 +24,7 @@ const prefixHandle = (prefix: string | undefined) => {
 }
 
 export const certificate = new Elysia({ prefix: '/cert' })
-    .use(
-        jwt({
-            name: 'jwt',
-            secret: "CHANGE_THIS_IN_PROD"
-        })
-    )
-    .get("/:id", async ({ jwt, set, status, params: { id }}) => {
+    .get("/:id", async ({ set, params: { id }}) => {
         set.headers["Content-Type"] = "image/png";
         
 

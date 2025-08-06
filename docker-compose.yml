@@ -1,28 +1,40 @@
 services:
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: alice
-      POSTGRES_PASSWORD: alicepassword
-      POSTGRES_DB: alicedb
-    ports:
-      - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
+    db:
+        image: postgres:15
+        environment:
+            POSTGRES_USER: alice
+            POSTGRES_PASSWORD: alicepassword
+            POSTGRES_DB: alicedb
+        ports:
+            - "5432:5432"
+        volumes:
+            - db_data:/var/lib/postgresql/data
 
-  app:
-    build: .
-    # image: alice-app # (optional: name your built image something unique if you want)
-    entrypoint: []
-    command: /bin/sh -c "bun install && bunx prisma generate && bunx prisma db push && bun run --watch src/index.ts"
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./:/home/bun/app:z
-    depends_on:
-      - db
-    environment:
-      DATABASE_URL: postgres://alice:alicepassword@db:5432/alicedb
+    studio:
+        build: .
+        command: /bin/sh -c "bunx prisma studio --port 5555 --hostname 0.0.0.0"
+        ports:
+            - "5555:5555"
+        volumes:
+            - ./:/home/bun/app:z
+        depends_on:
+            - db
+        environment:
+            DATABASE_URL: postgres://alice:alicepassword@db:5432/alicedb
+
+    app:
+        build: .
+        # image: alice-app # (optional: name your built image something unique if you want)
+        entrypoint: []
+        command: /bin/sh -c "bun install && bunx prisma generate && bunx prisma db push && bun run --watch src/index.ts"
+        ports:
+            - "8000:8000"
+        volumes:
+            - ./:/home/bun/app:z
+        depends_on:
+            - db
+        environment:
+            DATABASE_URL: postgres://alice:alicepassword@db:5432/alicedb
 
 volumes:
-  db_data:
+    db_data:

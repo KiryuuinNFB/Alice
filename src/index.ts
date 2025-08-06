@@ -50,7 +50,7 @@ const app = new Elysia()
                 const jwttoken = await jwt.sign(
                     {
                         username: login?.username!,
-                        exp: '30m'
+                        exp: '1d'
                     },
                 )
 
@@ -145,7 +145,9 @@ const app = new Elysia()
                     "surname": getuser?.surname,
                     "events": getevents,
                     "role": getuser?.role,
-                    "prefix": getuser?.prefix
+                    "prefix": getuser?.prefix,
+                    "grade": getuser?.grade,
+                    "room": getuser?.room
                 }
             })
             .get('/base', async () => {

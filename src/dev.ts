@@ -9,12 +9,13 @@ export const dev = new Elysia({ prefix: '/dev' })
     .group('', (app) =>
         app
             .put('/base', async ({ body }) => {
-                const { name, desc, location } = body;
+                const { name, desc, location, teacher } = body;
                 const base = await prisma.base.create({
                     data: {
                         name,
                         desc,
-                        location
+                        location,
+                        teacher
                     }
                 });
 
@@ -26,11 +27,12 @@ export const dev = new Elysia({ prefix: '/dev' })
                 body: t.Object({
                     name: t.String(),
                     desc: t.String(),
-                    location: t.String()
+                    location: t.String(),
+                    teacher: t.String()
                 })
             })
             .patch('/base', async ({ body }) => {
-                const { id, name, desc, location } = body;
+                const { id, name, desc, location, teacher } = body;
                 const base = await prisma.base.update({
                     where: {
                         id: id
@@ -38,7 +40,8 @@ export const dev = new Elysia({ prefix: '/dev' })
                     data: {
                         name,
                         desc,
-                        location
+                        location,
+                        teacher
                     }
                 });
 
@@ -51,7 +54,8 @@ export const dev = new Elysia({ prefix: '/dev' })
                     id: t.Number(),
                     name: t.String(),
                     desc: t.String(),
-                    location: t.String()
+                    location: t.String(),
+                    teacher: t.String()
                 })
             })
             .delete('/base', async ({ body }) => {
@@ -81,7 +85,7 @@ export const dev = new Elysia({ prefix: '/dev' })
     .group('', (app) =>
         app
             .put('/user', async ({ body }) => {
-                const { username, password, name, surname, role, prefix } = body;
+                const { username, password, name, surname, role, prefix, grade, room } = body;
                 const hashed = await Bun.password.hash(password, { algorithm: "argon2id", memoryCost: 4, timeCost: 3 })
 
                 const user = await prisma.user.create({
@@ -91,7 +95,9 @@ export const dev = new Elysia({ prefix: '/dev' })
                         name,
                         surname,
                         role: role ?? 'USER',
-                        prefix: prefix ?? 'Other'
+                        prefix: prefix ?? 'Other',
+                        grade,
+                        room
                     },
                 });
 
@@ -119,10 +125,12 @@ export const dev = new Elysia({ prefix: '/dev' })
                         Nang: 'Nang'
 
                     })),
+                    grade: t.Number(),
+                    room: t.Number()
                 }),
             })
             .patch('/user', async ({ body }) => {
-                const { username, password, name, surname, role, prefix } = body;
+                const { username, password, name, surname, role, prefix, grade, room } = body;
                 const hashed = await Bun.password.hash(password, { algorithm: "argon2id", memoryCost: 4, timeCost: 3 })
 
                 const user = await prisma.user.update({
@@ -134,7 +142,9 @@ export const dev = new Elysia({ prefix: '/dev' })
                         name,
                         surname,
                         role: role ?? 'USER',
-                        prefix: prefix ?? 'Other'
+                        prefix: prefix ?? 'Other',
+                        grade,
+                        room
                     },
                 });
 
@@ -162,6 +172,8 @@ export const dev = new Elysia({ prefix: '/dev' })
                         Nang: 'Nang'
 
                     })),
+                    grade: t.Number(),
+                    room: t.Number()
                 }),
             })
             .delete('/user', async ({ body }) => {
@@ -197,7 +209,9 @@ export const dev = new Elysia({ prefix: '/dev' })
                     "surname": getuser?.surname,
                     "events": getevents,
                     "role": getuser?.role,
-                    "prefix": getuser?.prefix
+                    "prefix": getuser?.prefix,
+                    "grade": getuser?.grade,
+                    "room": getuser?.room
                 }
             })
     )

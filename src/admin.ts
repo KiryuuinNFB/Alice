@@ -13,7 +13,7 @@ export const admin = new Elysia({ prefix: '/admin' })
     .use(
         jwt({
             name: 'jwt',
-            secret: "CHANGE_THIS_IN_PROD"
+            secret: "I_CHANGED_IT_IN_PROD"
         })
     )
     .guard({
@@ -36,8 +36,84 @@ export const admin = new Elysia({ prefix: '/admin' })
     })
     .group('', (app) =>
         app
+            .put('/base', async ({ body }) => {
+                const { name, desc, location, teacher } = body;
+                const base = await prisma.base.create({
+                    data: {
+                        name,
+                        desc,
+                        location,
+                        teacher,
+                    }
+                });
+
+                return {
+                    id: base.id,
+                    name: base.name
+                };
+            }, {
+                body: t.Object({
+                    name: t.String(),
+                    desc: t.String(),
+                    location: t.String(),
+                    teacher: t.String()
+                })
+            })
+            .patch('/base', async ({ body }) => {
+                const { id, name, desc, location, teacher } = body;
+                const base = await prisma.base.update({
+                    where: {
+                        id: id
+                    },
+                    data: {
+                        name,
+                        desc,
+                        location,
+                        teacher,
+                    }
+                });
+
+                return {
+                    id: base.id,
+                    name: base.name
+                };
+            }, {
+                body: t.Object({
+                    id: t.Number(),
+                    name: t.String(),
+                    desc: t.String(),
+                    location: t.String(),
+                    teacher: t.String()
+                })
+            })
+            .delete('/base', async ({ body }) => {
+                const { id } = body;
+                const base = await prisma.base.delete({
+                    where: {
+                        id: id
+                    }
+                });
+
+                return {
+                    id: base.id,
+                    name: base.name
+                };
+            }, {
+                body: t.Object({
+                    id: t.Number()
+                })
+            })
+            .get('/base', async () => {
+                const getbases = await prisma.base.findMany()
+
+                return getbases
+
+            })
+    )
+    .group('', (app) =>
+        app
             .put('/user', async ({ body }) => {
-                const { username, password, name, surname, role, prefix } = body;
+                const { username, password, name, surname, role, prefix, grade, room } = body;
                 const hashed = await Bun.password.hash(password)
 
                 const user = await prisma.user.create({
@@ -48,6 +124,8 @@ export const admin = new Elysia({ prefix: '/admin' })
                         surname,
                         role: role ?? 'USER',
                         prefix: prefix ?? 'Other',
+                        grade,
+                        room
                     },
                 });
 
@@ -75,6 +153,55 @@ export const admin = new Elysia({ prefix: '/admin' })
                         Nang: 'Nang'
 
                     })),
+                    grade: t.Number(),
+                    room: t.Number()
+                }),
+            })
+            .patch('/user', async ({ body }) => {
+                const { username, password, name, surname, role, prefix, grade, room } = body;
+                const hashed = await Bun.password.hash(password, { algorithm: "argon2id", memoryCost: 4, timeCost: 3 })
+
+                const user = await prisma.user.update({
+                    where: {
+                        username: username
+                    },
+                    data: {
+                        password: hashed,
+                        name,
+                        surname,
+                        role: role ?? 'USER',
+                        prefix: prefix ?? 'Other',
+                        grade,
+                        room,
+                    },
+                });
+
+                return {
+                    username: user.username,
+                    role: user.role
+                };
+            }, {
+                body: t.Object({
+                    username: t.String(),
+                    password: t.String(),
+                    name: t.String(),
+                    surname: t.String(),
+                    role: t.Optional(t.Enum({
+                        USER: 'USER',
+                        ADMIN: 'ADMIN',
+                        MOD: 'MOD'
+                    })),
+                    prefix: t.Optional(t.Enum({
+                        Other: 'Other',
+                        DekChai: 'DekChai',
+                        DekYing: 'DekYing',
+                        Nai: 'Nai',
+                        NangSao: 'NangSao',
+                        Nang: 'Nang'
+
+                    })),
+                    grade: t.Number(),
+                    room: t.Number(),
                 }),
             })
             .delete('/user', async ({ body }) => {
@@ -126,6 +253,39 @@ export const admin = new Elysia({ prefix: '/admin' })
                 })
             })
     )
+    .group('/database', (app) =>
+        app
+            .get('/user/', async ({ query }) => {
+                const page = parseInt(query.page || "1")
+                const take = 10
+                const skip = (page - 1) * take;
+
+                const where: any = {}
+                if (query.grade) where.grade = parseInt(query.grade);
+                if (query.room) where.room = parseInt(query.room);
+
+                const getUsers = await prisma.user.findMany({
+                    where,
+                    skip,
+                    take,
+                    orderBy: { id: 'desc' },
+                    omit: {
+                        id: true,
+                        password: true
+                    }
+                });
+
+                const total = await prisma.user.count({ where });
+
+                return {
+                    data: getUsers,
+                    total,
+                    page,
+                    pageCount: Math.ceil(total / take)
+                }
+
+            })
+    )
     .post('/approve/:user/:base', async ({ params: { user, base } }) => {
         const userExists = await prisma.user.findUnique({
             where: {
@@ -133,7 +293,7 @@ export const admin = new Elysia({ prefix: '/admin' })
             }
         });
         if (!userExists) {
-            return status(404 ,'Not Found')
+            return status(404, 'Not Found')
         }
 
         const completionCheck = await prisma.completion.findMany({
