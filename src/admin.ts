@@ -346,12 +346,9 @@ export const admin = new Elysia({ prefix: '/admin' })
             return status(403, "Forbidden")
         }
 
-
     }, {
         params: t.Object({
             user: t.String(),
             base: t.Number()
         })
     })
-
-
