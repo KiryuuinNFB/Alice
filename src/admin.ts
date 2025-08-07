@@ -268,7 +268,7 @@ export const admin = new Elysia({ prefix: '/admin' })
                     where,
                     skip,
                     take,
-                    orderBy: { id: 'desc' },
+                    orderBy: { username: 'desc' },
                     omit: {
                         id: true,
                         password: true
