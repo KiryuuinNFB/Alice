@@ -264,6 +264,14 @@ export const admin = new Elysia({ prefix: '/admin' })
                 if (query.grade) where.grade = parseInt(query.grade);
                 if (query.room) where.room = parseInt(query.room);
 
+                if (query.search) {
+                    where.OR = [
+                        { username: { contains: query.search, mode: 'insensitive' } },
+                        { name: { contains: query.search, mode: 'insensitive' } },
+                        { surname: { contains: query.search, mode: 'insensitive' } },
+                    ];
+                }
+
                 const getUsers = await prisma.user.findMany({
                     where,
                     skip,
