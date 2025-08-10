@@ -264,7 +264,7 @@ export const admin = new Elysia({ prefix: '/admin' })
                 if (query.grade) where.grade = parseInt(query.grade);
                 if (query.room) where.room = parseInt(query.room);
 
-                if (query.search) {
+                if (query.search && query.search.trim() !== "") {
                     where.OR = [
                         { username: { contains: query.search, mode: 'insensitive' } },
                         { name: { contains: query.search, mode: 'insensitive' } },
