@@ -276,7 +276,7 @@ export const admin = new Elysia({ prefix: '/admin' })
                     where,
                     skip,
                     take,
-                    orderBy: { username: 'desc' },
+                    orderBy: { username: 'asc' },
                     omit: {
                         id: true,
                         password: true
@@ -291,6 +291,20 @@ export const admin = new Elysia({ prefix: '/admin' })
                     page,
                     pageCount: Math.ceil(total / take)
                 }
+
+            })
+            .get('/user/completion/:id', async ({ params: {id} }) => {
+                
+                const getuser = await prisma.user.findFirst({
+                    where: {
+                        username: id
+                    },
+                    include: {
+                        completed: true
+                    }
+                })
+
+                return getuser
 
             })
             .get('/base/', async ({ query }) => {
