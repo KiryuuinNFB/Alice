@@ -293,23 +293,23 @@ export const admin = new Elysia({ prefix: '/admin' })
                 }
 
             })
-            .get('/user/completion/:username', async ({ params: {username} }) => {
+            .get('/user/completion/:id', async ({ params: {id} }) => {
                 
-                const getuser = await prisma.user.findUnique({
+                const getuser = await prisma.user.findFirst({
                     where: {
-                        username: username
-                    }
-                });
-                const getcompletion = await prisma.completion.findMany({
-                    where: {
-                        userId: username
+                        username: id
+                    },
+                    omit: {
+                        id: true,
+                        password: true
+                    },
+                    include: {
+                        completed: true
                     }
                 })
+                const getbases = await prisma.base.findMany()
 
-                return {
-                    "data": getuser,
-                    "completion": getcompletion
-                }
+                return getuser
 
             })
             .get('/base/', async ({ query }) => {
