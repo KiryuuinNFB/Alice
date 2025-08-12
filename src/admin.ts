@@ -4,8 +4,22 @@ import { jwt } from '@elysiajs/jwt'
 
 interface JwtPayload {
     username: string
-
 }
+
+type Events = {
+    id: number;
+    completedOn: Date;
+    baseId: number;
+    userId: string;
+};
+
+type BaseStatus = {
+    id: number;
+    name: string;
+    desc: string;
+    location: string;
+    teacher: string;
+};
 
 const prisma = new PrismaClient()
 
@@ -293,8 +307,8 @@ export const admin = new Elysia({ prefix: '/admin' })
                 }
 
             })
-            .get('/user/completion/:id', async ({ params: {id} }) => {
-                
+            .get('/user/completion/:id', async ({ params: { id } }) => {
+
                 const getuser = await prisma.user.findFirst({
                     where: {
                         username: id
@@ -307,9 +321,62 @@ export const admin = new Elysia({ prefix: '/admin' })
                         completed: true
                     }
                 })
+
+                if (!getuser) {
+                    return status(404, 'Not Found')
+                }
+
                 const getbases = await prisma.base.findMany()
 
-                return getuser
+                const checkUserCompletion = (user: Events[], bases: BaseStatus[]) => {
+                    const userCompleted: number[] = []
+                    const baseArr: BaseStatus[] = []
+                    for (var events of user) {
+                        userCompleted.push(events.baseId)
+                    }
+                    for (var base of bases) {
+                        const eachBase: BaseStatus = {
+                            id: base.id,
+                            name: base.name,
+                            desc: base.desc,
+                            location: base.location,
+                            teacher: base.teacher,
+                        }
+                        baseArr.push(eachBase)
+                    }
+
+                    return baseArr
+                }
+                if (getuser.completed == undefined) {
+                    getuser.completed = []
+                }
+
+                const prefixHandle = () => {
+                    switch (getuser?.prefix) {
+                        case "DekChai":
+                            return "ด.ช."
+                        case "DekYing":
+                            return "ด.ญ."
+                        case "NangSao":
+                            return "นางสาว"
+                        case "Nang":
+                            return "นาง"
+                        case "Nai":
+                            return "นาย"
+                        default:
+                            return "อื่นๆ"
+                    }
+                }
+
+                return {
+                    "username": getuser?.username,
+                    "name": getuser?.name,
+                    "surname": getuser?.surname,
+                    "grade": getuser?.grade,
+                    "room": getuser?.room,
+                    "prefix": prefixHandle(),
+                    "events": checkUserCompletion(getuser?.completed, getbases)
+                }
 
             })
             .get('/base/', async ({ query }) => {
