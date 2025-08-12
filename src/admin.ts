@@ -13,7 +13,7 @@ type Events = {
     userId: string;
 };
 
-type BaseStatus = {
+interface BaseStatus {
     id: number;
     name: string;
     desc: string;
@@ -323,7 +323,7 @@ export const admin = new Elysia({ prefix: '/admin' })
                 })
 
                 if (!getuser) {
-                    return status(404, 'Not Found')
+                    return 
                 }
 
                 const getbases = await prisma.base.findMany()
@@ -334,13 +334,18 @@ export const admin = new Elysia({ prefix: '/admin' })
                     for (var events of user) {
                         userCompleted.push(events.baseId)
                     }
+
+                    interface completedBaseStatus extends BaseStatus {
+                        completed: boolean
+                    }
                     for (var base of bases) {
-                        const eachBase: BaseStatus = {
+                        const eachBase: completedBaseStatus = {
                             id: base.id,
                             name: base.name,
                             desc: base.desc,
                             location: base.location,
                             teacher: base.teacher,
+                            completed: userCompleted.includes(base.id)
                         }
                         baseArr.push(eachBase)
                     }
