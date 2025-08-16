@@ -6,7 +6,7 @@ services:
             POSTGRES_PASSWORD: alicepassword
             POSTGRES_DB: alicedb
         ports:
-            - "5433:5433"
+            - "5433:5432"
         volumes:
             - db_data:/var/lib/postgresql/data
 
@@ -20,7 +20,7 @@ services:
         depends_on:
             - db
         environment:
-            DATABASE_URL: postgres://alice:alicepassword@db:5432/alicedb
+            DATABASE_URL: postgres://alice:alicepassword@db:5433/alicedb
 
     app:
         build: .
@@ -34,7 +34,7 @@ services:
         depends_on:
             - db
         environment:
-            DATABASE_URL: postgres://alice:alicepassword@db:5432/alicedb
+            DATABASE_URL: postgres://alice:alicepassword@db:5433/alicedb
 
 volumes:
     db_data:
