@@ -20,7 +20,7 @@ services:
         depends_on:
             - db
         environment:
-            DATABASE_URL: postgres://alice:alicepassword@db:5433/alicedb
+            DATABASE_URL: postgres://alice:alicepassword@db:5432/alicedb
 
     app:
         build: .
@@ -34,7 +34,7 @@ services:
         depends_on:
             - db
         environment:
-            DATABASE_URL: postgres://alice:alicepassword@db:5433/alicedb
+            DATABASE_URL: postgres://alice:alicepassword@db:5432/alicedb
 
 volumes:
     db_data:
