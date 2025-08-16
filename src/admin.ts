@@ -4,8 +4,22 @@ import { jwt } from '@elysiajs/jwt'
 
 interface JwtPayload {
     username: string
-
 }
+
+type Events = {
+    id: number;
+    completedOn: Date;
+    baseId: number;
+    userId: string;
+};
+
+interface BaseStatus {
+    id: number;
+    name: string;
+    desc: string;
+    location: string;
+    teacher: string;
+};
 
 const prisma = new PrismaClient()
 
@@ -264,11 +278,19 @@ export const admin = new Elysia({ prefix: '/admin' })
                 if (query.grade) where.grade = parseInt(query.grade);
                 if (query.room) where.room = parseInt(query.room);
 
+                if (query.search && query.search.trim() !== "") {
+                    where.OR = [
+                        { username: { contains: query.search, mode: 'insensitive' } },
+                        { name: { contains: query.search, mode: 'insensitive' } },
+                        { surname: { contains: query.search, mode: 'insensitive' } },
+                    ];
+                }
+
                 const getUsers = await prisma.user.findMany({
                     where,
                     skip,
                     take,
-                    orderBy: { id: 'desc' },
+                    orderBy: { username: 'asc' },
                     omit: {
                         id: true,
                         password: true
@@ -285,6 +307,108 @@ export const admin = new Elysia({ prefix: '/admin' })
                 }
 
             })
+            .get('/user/completion/:id', async ({ params: { id } }) => {
+
+                const getuser = await prisma.user.findFirst({
+                    where: {
+                        username: id
+                    },
+                    omit: {
+                        id: true,
+                        password: true
+                    },
+                    include: {
+                        completed: true
+                    }
+                })
+
+                if (!getuser) {
+                    return 
+                }
+
+                const getbases = await prisma.base.findMany()
+
+                const checkUserCompletion = (user: Events[], bases: BaseStatus[]) => {
+                    const userCompleted: number[] = []
+                    const baseArr: BaseStatus[] = []
+                    for (var events of user) {
+                        userCompleted.push(events.baseId)
+                    }
+
+                    interface completedBaseStatus extends BaseStatus {
+                        completed: boolean
+                    }
+                    for (var base of bases) {
+                        const eachBase: completedBaseStatus = {
+                            id: base.id,
+                            name: base.name,
+                            desc: base.desc,
+                            location: base.location,
+                            teacher: base.teacher,
+                            completed: userCompleted.includes(base.id)
+                        }
+                        baseArr.push(eachBase)
+                    }
+
+                    return baseArr
+                }
+                if (getuser.completed == undefined) {
+                    getuser.completed = []
+                }
+
+                const prefixHandle = () => {
+                    switch (getuser?.prefix) {
+                        case "DekChai":
+                            return "ด.ช."
+                        case "DekYing":
+                            return "ด.ญ."
+                        case "NangSao":
+                            return "นางสาว"
+                        case "Nang":
+                            return "นาง"
+                        case "Nai":
+                            return "นาย"
+                        default:
+                            return "อื่นๆ"
+                    }
+                }
+
+                return {
+                    "username": getuser?.username,
+                    "name": getuser?.name,
+                    "surname": getuser?.surname,
+                    "grade": getuser?.grade,
+                    "room": getuser?.room,
+                    "prefix": prefixHandle(),
+                    "events": checkUserCompletion(getuser?.completed, getbases)
+                }
+
+            })
+            .get('/base/', async ({ query }) => {
+                const page = parseInt(query.page || "1")
+                const take = 10
+                const skip = (page - 1) * take;
+
+                const where: any = {}
+
+                const getBases = await prisma.base.findMany({
+                    where,
+                    skip,
+                    take,
+                    orderBy: { id: 'desc' },
+                });
+
+                const total = await prisma.base.count({ where });
+
+                return {
+                    data: getBases,
+                    total,
+                    page,
+                    pageCount: Math.ceil(total / take)
+                }
+
+            })
+
     )
     .post('/approve/:user/:base', async ({ params: { user, base } }) => {
         const userExists = await prisma.user.findUnique({
@@ -321,12 +445,9 @@ export const admin = new Elysia({ prefix: '/admin' })
             return status(403, "Forbidden")
         }
 
-
     }, {
         params: t.Object({
             user: t.String(),
             base: t.Number()
         })
     })
-
-
