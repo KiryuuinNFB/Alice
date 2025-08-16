@@ -22,4 +22,4 @@ Run
 docker-compose up
 ```
 
-Open http://localhost:8000/ with your browser to see the result.
+Open http://localhost:8001/ with your browser to see the result.

@@ -15,8 +15,8 @@ COPY . .
 
 COPY Sarabun-Regular.ttf /usr/share/fonts/truetype/Sarabun-Regular.ttf
 
-ENV PORT=8000
+ENV PORT=8001
 
-EXPOSE 8000
+EXPOSE 8001
 
 CMD ["bun", "src/index.ts"]
