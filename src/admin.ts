@@ -30,6 +30,11 @@ export const admin = new Elysia({ prefix: '/admin' })
             secret: "I_CHANGED_IT_IN_PROD"
         })
     )
+    .ws('/ws', {
+        message(ws, message) {
+            ws.send(message)
+        }
+    })
     .guard({
         beforeHandle: async ({ jwt, headers, status }) => {
             const auth = headers.authorization
